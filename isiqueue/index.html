@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bank of South Pacific — Queue Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="bg"></div>
+
+  <!-- Top bar -->
+  <header class="topbar">
+    <div class="brand">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+        <path d="M7 12h10M12 7v10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <div class="brand-text">
+        <h1>Bank of South Pacific</h1>
+        <span>IsiQueue - Electronic Queue Management</span>
+      </div>
+    </div>
+
+    <div class="top-right">
+      <div class="chip" id="branchChip">Madang Branch</div>
+      <div class="divider"></div>
+      <div class="clock" id="clock">--:--</div>
+
+      <!-- Staff dropdown -->
+      <div class="profile">
+        <button id="profileBtn" class="profile__btn" aria-haspopup="menu" aria-expanded="false">
+          <span id="staffName">Staff</span>
+          <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+        <div id="profileMenu" class="profile__menu" role="menu" aria-hidden="true">
+          <a href="#" role="menuitem" data-route="queues"    class="menu-item queues">Queues</a>
+          <a href="#" role="menuitem" data-route="register"  class="menu-item register">Register customer</a>
+          <a href="#" role="menuitem" data-route="analytics" class="menu-item analytics">Analytics</a>
+          <div class="menu__hr"></div>
+          <a href="#" role="menuitem" id="logoutBtn" class="menu-item logout">Logout</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Queues view -->
+    <section class="tab-panel" id="tab-queues" role="tabpanel">
+      <section class="row kpis">
+        <div class="card kpi">
+          <div class="kpi-title">Waiting</div>
+          <div class="kpi-value" id="kpiWaiting">0</div>
+        </div>
+        <div class="card kpi now">
+          <div class="kpi-title">Now Serving</div>
+          <div class="kpi-value" id="kpiNow">—</div>
+          <div class="kpi-sub" id="kpiNowDetail">Select “Call Next”</div>
+        </div>
+        <div class="card kpi">
+          <div class="kpi-title">Completed</div>
+          <div class="kpi-value" id="kpiDone">0</div>
+        </div>
+        <div class="card kpi">
+          <div class="kpi-title">Avg Wait</div>
+          <div class="kpi-value" id="kpiAvg">0:00</div>
+        </div>
+      </section>
+
+      <section class="row controls">
+        <div class="card actions">
+          <div class="control-grid">
+            <button class="btn primary" id="callNextBtn">Call Next</button>
+            <button class="btn success" id="servingBtn">Serving</button>
+            <button class="btn warn" id="servedBtn">Served</button>
+            <button class="btn ghost" id="holdBtn">Hold</button>
+          </div>
+          <div class="control-grid">
+            <div class="field">
+              <label for="counterSelect">Counter</label>
+              <select id="counterSelect">
+                <option value="1">Withdrawal Counter</option>
+                <option value="2">Deposit Counter</option>
+                <option value="3">Customer Service Counter</option>
+                <option value="4">Enquiry Counter</option>
+                <option value="5">Loan Counter</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="serviceFilter">Service</label>
+              <select id="serviceFilter">
+                <option value="ALL">All</option>
+                <option value="E">Enquiry</option>
+                <option value="W">Withdrawal</option>
+                <option value="D">Deposit</option>
+                <option value="C">Customer Service</option>
+                <option value="L">Loan</option>
+              </select>
+            </div>
+            <div class="field grow">
+              <label for="searchBox">Search</label>
+              <input id="searchBox" type="text" placeholder="Find ticket or name…" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="row">
+        <div class="card table-card">
+          <div class="table-head">
+            <h3>Waiting List</h3>
+            <div class="pill" id="filterPill">All Services</div>
+          </div>
+          <div class="table-wrapper">
+            <table class="table" id="queueTable" aria-label="Waiting queue">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Ticket</th>
+                  <th>Service</th>
+                  <th>Customer</th>
+                  <th>Status</th>
+                  <th>Est Wait</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <!-- Register view -->
+    <section class="tab-panel hidden" id="tab-register" role="tabpanel" aria-hidden="true">
+      <section class="row">
+        <div class="card reg-card">
+          <h3 style="margin-top:0;">Register Customer</h3>
+
+          <form id="registerForm" class="grid-2 reg-form">
+            <div class="field">
+              <label for="firstName">First Name</label>
+              <input id="firstName" name="first_name" required placeholder="e.g., Gedix" autocomplete="given-name">
+            </div>
+            <div class="field">
+              <label for="lastName">Last Name</label>
+              <input id="lastName" name="last_name" required placeholder="e.g., Atage" autocomplete="family-name">
+            </div>
+            <div class="field">
+              <label for="email">Email</label>
+              <input id="email" type="email" name="email" required placeholder="name@example.com" autocomplete="email">
+            </div>
+            <div class="field">
+              <label for="dob">Date of Birth</label>
+              <input id="dob" type="date" name="dob" required>
+            </div>
+
+            <div class="field span-2">
+              <label for="address">Address</label>
+              <input id="address" name="address" placeholder="e.g., Kalibobo, Newtown">
+            </div>
+
+            <div class="actions-row span-2">
+              <button class="btn primary" type="submit">Register</button>
+              <button class="btn ghost" type="reset">Clear</button>
+              <span id="regStatus" class="form-status" role="status" aria-live="polite"></span>
+            </div>
+          </form>
+        </div>
+      </section>
+    </section>
+
+    <!-- Analytics view -->
+    <section class="tab-panel hidden" id="tab-analytics" role="tabpanel" aria-hidden="true">
+      <section class="row kpis">
+        <div class="card kpi">
+          <div class="kpi-title">Currently Serving</div>
+          <div class="kpi-value" id="anServing">0</div>
+        </div>
+        <div class="card kpi">
+          <div class="kpi-title">Total Waiting</div>
+          <div class="kpi-value" id="anWaiting">0</div>
+        </div>
+        <div class="card kpi">
+          <div class="kpi-title">Completed Today</div>
+          <div class="kpi-value" id="anCompleted">0</div>
+        </div>
+      </section>
+
+      <section class="row">
+        <div class="card table-card">
+          <div class="table-head">
+            <h3>Completed Tickets (Recent)</h3>
+            <div class="pill">Auto-refreshes every 5s</div>
+          </div>
+          <div class="table-wrapper">
+            <table class="table" id="servedTable" aria-label="Served tickets">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Ticket</th>
+                  <th>Service</th>
+                  <th>Customer</th>
+                  <th>Status</th>
+                  <th>Completed</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script src="./app.js"></script>
+</body>
+</html>

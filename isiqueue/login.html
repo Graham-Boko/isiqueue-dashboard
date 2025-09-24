@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>IsiQueue — Staff Login</title>
+  <link rel="stylesheet" href="./styles.css" />
+  <style>
+    /* page-local polish (kept minimal) */
+    .auth-wrap{ display:grid; grid-template-columns: 1fr; gap:22px; margin-top:10vh; }
+    .auth-card{ padding:32px; }
+    .subtitle{ margin:6px 0 18px; color:hsl(var(--muted)); text-align:center; }
+    .hero{
+      display:none; padding:24px;
+      border-radius:16px; border:1px solid hsl(var(--border));
+      background:linear-gradient(135deg, hsl(var(--accent)/.12), hsl(0 0% 100%/.06));
+    }
+    .hero h2{ margin:0 0 8px; }
+    .chip-row{ display:flex; flex-wrap:wrap; gap:12px; margin:10px 0 14px; }
+    .chip.pill{
+      border-radius:999px; padding:8px 12px; font-weight:700;
+      background:hsl(var(--accent) / .14); border:1px solid hsl(var(--accent) / .45);
+    }
+    .hero-points{ margin:10px 0 0; padding-left:20px; line-height:1.7; color:hsl(var(--text)); }
+    .hero-points li{ margin:2px 0; }
+    .muted-link{ color:hsl(var(--muted)); text-decoration:none; font-size:14px; }
+    .muted-link:hover{ text-decoration:underline; }
+    .links-row{ display:flex; gap:16px; justify-content:center; margin-top:12px; }
+    .right-actions{ display:flex; justify-content:space-between; align-items:center; gap:12px; }
+    .eye-btn{ position:absolute; right:10px; top:35px; background:transparent; border:0; cursor:pointer; color:hsl(var(--muted)); }
+    .rel{ position:relative; }
+    .login-footer{ margin:28px auto 16px; text-align:center; color:hsl(var(--muted)); font-size:13px; }
+
+    /* modal */
+    .modal-backdrop{ position:fixed; inset:0; background:rgba(0,0,0,.45); display:none; align-items:center; justify-content:center; z-index:50; }
+    .modal{ width:min(520px, 92vw); }
+    .modal .card{ padding:22px; }
+    .modal.show{ display:flex; }
+
+    @media (min-width: 1000px){
+      .auth-wrap{ grid-template-columns: 1.1fr .9fr; align-items:start; margin-top:12vh; gap:28px; }
+      .hero{ display:block; }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg"></div>
+
+  <!-- Top bar (same structure/styling as index.html) -->
+  <header class="topbar">
+    <div class="brand">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+        <path d="M7 12h10M12 7v10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <div class="brand-text">
+        <h1>Bank of South Pacific</h1>
+        <span>IsiQueue - Electronic Queue Management</span>
+      </div>
+    </div>
+    <div class="top-right">
+      <div class="chip" id="branchChip">Madang Branch</div>
+      <div class="divider"></div>
+      <div class="clock" id="clock">--:--</div>
+    </div>
+  </header>
+
+  <main class="container auth-wrap">
+    <!-- Left: hero with meaningful content -->
+    <section class="hero card">
+      <h2>Welcome to IsiQueue</h2>
+      <p class="subtitle" style="text-align:left;">Manage queues, call customers, and see results in real time.</p>
+
+      <div class="chip-row">
+        <span class="chip pill">Live queue</span>
+        <span class="chip pill">Call next</span>
+        <span class="chip pill">Today’s stats</span>
+        <span class="chip pill">Alerts</span>
+      </div>
+
+      <ul class="hero-points">
+        <li>Call the next customer with one click</li>
+        <li>See how long people are waiting</li>
+        <li>Track how many customers you’ve served today</li>
+      </ul>
+
+      <div class="links-row">
+        <a class="muted-link" href="#" id="helpLink">Help</a>
+        <a class="muted-link" href="#" id="contactLink">Contact</a>
+        <a class="muted-link" href="#" id="privacyLink">Privacy</a>
+      </div>
+    </section>
+
+    <!-- Right: login card -->
+    <section class="card auth-card">
+      <h2 style="margin-top:0; text-align:center;">Staff Login</h2>
+      <p class="subtitle">Use your registered email and password.</p>
+
+      <form id="loginForm" class="grid-2" style="gap:16px;">
+        <div class="field span-2">
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" required placeholder="name@example.com" autocomplete="username">
+        </div>
+
+        <div class="field span-2 rel">
+          <label for="password">Password</label>
+          <input id="password" name="password" type="password" required placeholder="********" autocomplete="current-password">
+          <button type="button" class="eye-btn" id="togglePwd" aria-label="Show/Hide password">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12Z" stroke="currentColor" stroke-width="2"/>
+              <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="actions-row span-2 right-actions">
+          <a href="#" id="forgotLink" class="muted-link">Forgot password?</a>
+          <div>
+            <button class="btn primary" type="submit">Login</button>
+          </div>
+        </div>
+
+        <span id="loginStatus" class="form-status span-2" role="status" aria-live="polite"></span>
+      </form>
+
+      <div class="login-footer">© <span id="year"></span> IsiQueue • BSP Madang</div>
+    </section>
+  </main>
+
+  <!-- Forgot Password Modal -->
+  <div id="forgotModal" class="modal-backdrop" aria-hidden="true">
+    <div class="modal">
+      <div class="card">
+        <h3 style="margin-top:0;">Reset Password</h3>
+        <p class="subtitle" style="text-align:left;">Enter your staff email. We’ll set a temporary password.</p>
+
+        <form id="forgotForm" class="grid-2" style="gap:16px;">
+          <div class="field span-2">
+            <label for="fpEmail">Email</label>
+            <input id="fpEmail" type="email" required placeholder="name@example.com" autocomplete="email">
+          </div>
+          <div class="actions-row span-2" style="justify-content:flex-end;">
+            <button type="button" class="btn ghost" id="cancelForgot">Cancel</button>
+            <button type="submit" class="btn primary">Reset</button>
+          </div>
+          <span id="forgotStatus" class="form-status span-2" role="status" aria-live="polite"></span>
+        </form>
+
+        <p style="font-size:13px; color:hsl(var(--muted)); margin-top:10px;">
+          After reset, you’ll see the temporary password here. Use it to sign in, then ask admin to set a new one.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // topbar clock + footer year
+    function tickClock(){ const d=new Date(),p=n=>String(n).padStart(2,'0'); document.getElementById('clock').textContent=`${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}` }
+    setInterval(tickClock, 500); tickClock();
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+  <script src="./login.js"></script>
+</body>
+</html>
